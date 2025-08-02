@@ -3,751 +3,585 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Myrtille Industries - PDF Generator</title>
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <title>Modern PDF Page Number Adder</title>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-    }
-
-    :root {
-      --primary: #2c3e50;
-      --primary-dark: #1a2530;
-      --accent: #3498db;
-      --light: #ecf0f1;
-      --gray: #95a5a6;
-      --dark: #34495e;
-      --success: #27ae60;
-      --error: #e74c3c;
+      font-family: 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #2c3e50, #4a6491);
-      color: var(--light);
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
       min-height: 100vh;
-      padding: 15px;
       display: flex;
       justify-content: center;
       align-items: center;
-      line-height: 1.6;
+      padding: 20px;
     }
 
     .container {
       width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    .app-card {
-      background: rgba(44, 62, 80, 0.95);
-      border-radius: 12px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-      overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .app-header {
-      background: linear-gradient(90deg, var(--primary), var(--primary-dark));
-      padding: 20px;
-      text-align: center;
-    }
-
-    .app-header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-    }
-
-    .app-header p {
-      font-size: 1rem;
-      opacity: 0.9;
       max-width: 600px;
-      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 24px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
-    .app-content {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .app-section {
-      background: rgba(26, 37, 48, 0.7);
-      border-radius: 10px;
-      padding: 20px;
-    }
-
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 15px;
-      font-size: 1.2rem;
-      color: var(--accent);
-    }
-
-    .upload-area {
-      border: 2px dashed rgba(236, 240, 241, 0.3);
-      border-radius: 10px;
-      padding: 25px 15px;
+    .header {
+      background: linear-gradient(90deg, #4361ee, #3a0ca3);
+      color: white;
+      padding: 30px;
       text-align: center;
-      background: rgba(26, 37, 48, 0.4);
       position: relative;
     }
 
+    .header h1 {
+      font-weight: 700;
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .header p {
+      opacity: 0.85;
+      font-size: 1.1rem;
+      max-width: 80%;
+      margin: 0 auto;
+    }
+
+    .content {
+      padding: 30px;
+    }
+
+    .upload-area {
+      border: 2px dashed #4361ee;
+      border-radius: 16px;
+      padding: 40px 20px;
+      text-align: center;
+      background: rgba(67, 97, 238, 0.05);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 25px;
+    }
+
+    .upload-area:hover {
+      background: rgba(67, 97, 238, 0.1);
+    }
+
     .upload-area i {
-      font-size: 2.5rem;
-      color: var(--accent);
+      font-size: 48px;
+      color: #4361ee;
       margin-bottom: 15px;
     }
 
     .upload-area h3 {
-      font-size: 1.3rem;
-      margin-bottom: 8px;
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.4rem;
     }
 
     .upload-area p {
-      color: var(--gray);
+      color: #666;
       margin-bottom: 15px;
-      font-size: 0.9rem;
     }
 
     .btn {
       display: inline-block;
-      background: linear-gradient(90deg, var(--accent), #2980b9);
+      background: linear-gradient(90deg, #4361ee, #3a0ca3);
       color: white;
       border: none;
-      padding: 12px 25px;
-      font-size: 0.95rem;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 1.1rem;
       font-weight: 600;
-      border-radius: 6px;
       cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
-      margin-top: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+      margin: 10px 5px;
     }
 
     .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.4);
     }
 
     .btn:active {
-      transform: translateY(0);
+      transform: translateY(1px);
     }
 
     .btn:disabled {
-      background: var(--gray);
+      background: #b0b0b0;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
 
-    .btn i {
-      margin-right: 8px;
-    }
-
-    #pdfUpload {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      cursor: pointer;
-    }
-
-    .preview-container {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      margin-top: 10px;
-    }
-
-    .preview-box {
-      background: rgba(26, 37, 48, 0.5);
-      border-radius: 10px;
-      padding: 20px;
-    }
-
-    .preview-header {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 15px;
-      color: var(--accent);
-    }
-
-    .preview-content {
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 15px;
-      min-height: 200px;
-    }
-
-    .letterhead-preview {
+    .btn-secondary {
       background: white;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .letterhead-top {
-      background: white;
-      height: 70px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-bottom: 2px solid #eee;
-    }
-
-    .company-name {
-      font-size: 24px;
-      font-weight: 800;
-      color: #000;
-      letter-spacing: 0.5px;
-    }
-
-    .letterhead-content {
-      flex: 1;
-      background: #f9f9f9;
-      padding: 15px;
-      color: #333;
-      text-align: left;
-      font-size: 0.9rem;
-    }
-
-    .document-placeholder {
-      color: var(--gray);
-      font-size: 0.85rem;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .letterhead-bottom {
-      background: white;
-      height: 90px;
-      display: flex;
-      padding: 12px 15px;
-      border-top: 2px solid #eee;
-      font-size: 10px;
-      color: #3498db;
-    }
-
-    .address-section {
-      flex: 1;
-      border-right: 1px dashed #ccc;
-      padding-right: 10px;
-    }
-
-    .contact-section {
-      flex: 1;
-      padding-left: 10px;
-      text-align: right;
-    }
-
-    .section-title-line {
-      border-bottom: 1px solid var(--accent);
-      padding-bottom: 3px;
-      margin-bottom: 8px;
-      display: inline-block;
-      font-weight: bold;
-    }
-
-    .file-info {
-      background: rgba(26, 37, 48, 0.7);
-      border-radius: 6px;
-      padding: 12px;
-      margin-top: 15px;
-      text-align: left;
-      display: none;
-    }
-
-    .file-info.active {
-      display: block;
-    }
-
-    .file-info p {
-      margin: 6px 0;
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-    }
-
-    .file-info span {
-      color: var(--light);
-      font-weight: 500;
-    }
-
-    .status-area {
-      padding: 15px;
-      background: rgba(26, 37, 48, 0.6);
-      border-radius: 6px;
-      display: none;
-      margin-top: 15px;
-    }
-
-    .status-area.active {
-      display: block;
-    }
-
-    .status-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-      color: var(--accent);
-      font-size: 0.95rem;
+      color: #4361ee;
+      border: 2px solid #4361ee;
+      box-shadow: none;
     }
 
     .progress-container {
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
+      margin: 30px 0;
+      background: #f0f4ff;
+      border-radius: 12px;
       overflow: hidden;
-      margin: 12px 0;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
 
     .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent), #2980b9);
+      height: 20px;
+      background: linear-gradient(90deg, #4cc9f0, #4361ee);
+      border-radius: 12px;
       width: 0%;
-      transition: width 0.3s ease;
+      transition: width 0.5s ease;
+      position: relative;
     }
 
-    .status-message {
-      margin-top: 8px;
+    .progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-weight: 600;
       font-size: 0.85rem;
-      color: var(--gray);
     }
 
-    .footer {
+    .status-container {
       text-align: center;
-      padding: 15px;
-      color: var(--gray);
-      font-size: 0.8rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      margin: 20px 0;
+      min-height: 60px;
     }
 
-    /* Mobile optimizations */
-    @media (max-width: 480px) {
-      .app-header h1 {
-        font-size: 1.5rem;
+    .status {
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: 500;
+      padding: 10px;
+      border-radius: 12px;
+      background: #f0f8ff;
+      display: inline-block;
+    }
+
+    .status.success {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .status.error {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .file-info {
+      background: #f0f4ff;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 20px 0;
+      display: none;
+    }
+
+    .file-info.show {
+      display: block;
+      animation: fadeIn 0.5s;
+    }
+
+    .file-info p {
+      margin: 8px 0;
+      color: #333;
+    }
+
+    .file-info span {
+      font-weight: 600;
+      color: #4361ee;
+    }
+
+    .download-section {
+      text-align: center;
+      margin-top: 20px;
+      display: none;
+      animation: fadeIn 0.5s;
+    }
+
+    .download-section.show {
+      display: block;
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    .feature {
+      background: rgba(67, 97, 238, 0.08);
+      border-radius: 12px;
+      padding: 15px 10px;
+      text-align: center;
+    }
+
+    .feature i {
+      color: #4361ee;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .feature p {
+      font-size: 0.9rem;
+      color: #555;
+      font-weight: 500;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.4); }
+      70% { box-shadow: 0 0 0 12px rgba(67, 97, 238, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(67, 97, 238, 0); }
+    }
+
+    .pulse {
+      animation: pulse 1.5s infinite;
+    }
+
+    @media (max-width: 600px) {
+      .header {
+        padding: 25px 15px;
       }
       
-      .app-header p {
-        font-size: 0.9rem;
+      .content {
+        padding: 20px;
+      }
+      
+      .header h1 {
+        font-size: 1.8rem;
       }
       
       .btn {
-        padding: 10px 20px;
-        font-size: 0.9rem;
+        padding: 14px 26px;
+        font-size: 1rem;
       }
       
-      .preview-content {
-        min-height: 150px;
-      }
-      
-      .letterhead-top {
-        height: 60px;
-      }
-      
-      .company-name {
-        font-size: 20px;
-      }
-      
-      .letterhead-bottom {
-        height: 80px;
-        font-size: 9px;
+      .features {
+        grid-template-columns: 1fr 1fr;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="app-card">
-      <div class="app-header">
-        <h1><i class="fas fa-file-contract"></i> Myrtille Industries</h1>
-        <p>Professional PDF Generator with Custom Letterhead</p>
+    <div class="header">
+      <h1><i class="fas fa-file-pdf"></i> PDF Page Number Adder</h1>
+      <p>Add professional page numbers to any PDF document</p>
+    </div>
+    
+    <div class="content">
+      <div class="upload-area" id="uploadArea">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h3>Upload PDF File</h3>
+        <p>Click here or drag and drop your PDF file</p>
+        <p class="small">Max file size: 25MB</p>
       </div>
       
-      <div class="app-content">
-        <div class="app-section">
-          <div class="section-title">
-            <i class="fas fa-cloud-upload-alt"></i>
-            <h2>Upload Your Document</h2>
-          </div>
-          
-          <div class="upload-area" id="dropZone">
-            <i class="fas fa-file-pdf"></i>
-            <h3>Upload Your PDF Document</h3>
-            <p>Click anywhere in this area to select a file</p>
-            <button class="btn"><i class="fas fa-folder-open"></i> Browse Files</button>
-            <input type="file" id="pdfUpload" accept="application/pdf" />
-            
-            <div class="file-info" id="fileInfo">
-              <p>File: <span id="fileName">-</span></p>
-              <p>Size: <span id="fileSize">-</span></p>
-              <p>Pages: <span id="filePages">-</span></p>
-            </div>
-          </div>
-        </div>
-        
-        <div class="app-section">
-          <div class="section-title">
-            <i class="fas fa-eye"></i>
-            <h2>Letterhead Preview</h2>
-          </div>
-          
-          <div class="preview-container">
-            <div class="preview-box">
-              <div class="preview-header">
-                <i class="fas fa-file-signature"></i>
-                <h3>Letterhead Design</h3>
-              </div>
-              <div class="preview-content">
-                <div class="letterhead-preview">
-                  <div class="letterhead-top">
-                    <div class="company-name">MYRTILLE INDUSTRIES</div>
-                  </div>
-                  <div class="letterhead-content">
-                    <p>This area will display your document content. The professional letterhead will be automatically added to every page of your PDF.</p>
-                  </div>
-                  <div class="letterhead-bottom">
-                    <div class="address-section">
-                      <div class="section-title-line">REGISTERED ADDRESS</div>
-                      <div>Building No./Flat No.: PLOT NO 25</div>
-                      <div>Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI</div>
-                      <div>City/Town/Village: Jaipur</div>
-                      <div>District: Jaipur</div>
-                      <div>State: Rajasthan</div>
-                      <div>PIN Code: 302019</div>
-                    </div>
-                    <div class="contact-section">
-                      <div class="section-title-line">CONTACT DETAILS</div>
-                      <div>+91 9782099489</div>
-                      <div>myrtilleindia@gmail.com</div>
-                      <div>GST- 08AMHPY5013C1Z4</div>
-                      <div>URN- UDYAM-RJ-17-0084962</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="preview-box">
-              <div class="preview-header">
-                <i class="fas fa-file-alt"></i>
-                <h3>Your Document</h3>
-              </div>
-              <div class="preview-content">
-                <div class="document-placeholder" id="documentPreview">
-                  <i class="fas fa-file-upload fa-2x"></i>
-                  <p style="margin-top: 15px;">Upload a PDF to preview</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="app-section" style="text-align: center;">
-          <button class="btn" id="generateBtn" disabled style="padding: 14px 35px;">
-            <i class="fas fa-magic"></i> Generate Document with Letterhead
-          </button>
-          
-          <div class="status-area" id="statusArea">
-            <div class="status-header">
-              <i class="fas fa-cog fa-spin"></i>
-              <h3>Processing your document...</h3>
-            </div>
-            <div class="progress-container">
-              <div class="progress-bar" id="progressBar"></div>
-            </div>
-            <div class="status-message" id="statusMessage">Initializing PDF processing...</div>
-          </div>
+      <input type="file" id="pdfUpload" accept="application/pdf" hidden>
+      
+      <div class="file-info" id="fileInfo">
+        <p>File: <span id="fileName">-</span></p>
+        <p>Size: <span id="fileSize">-</span></p>
+        <p>Pages: <span id="pageCount">-</span></p>
+      </div>
+      
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar">
+          <div class="progress-text" id="progressText">0%</div>
         </div>
       </div>
       
-      <div class="footer">
-        <p>Myrtille Industries &copy; 2023 | Professional Document Solutions</p>
+      <div class="status-container">
+        <div class="status" id="status">Ready to process your PDF</div>
+      </div>
+      
+      <div class="actions">
+        <button class="btn" id="processBtn" disabled>
+          <i class="fas fa-cogs"></i> Add Page Numbers
+        </button>
+        <button class="btn btn-secondary" id="resetBtn">
+          <i class="fas fa-redo"></i> Reset
+        </button>
+      </div>
+      
+      <div class="download-section" id="downloadSection">
+        <button class="btn pulse" id="downloadBtn">
+          <i class="fas fa-download"></i> Download Numbered PDF
+        </button>
+      </div>
+      
+      <div class="features">
+        <div class="feature">
+          <i class="fas fa-mobile-alt"></i>
+          <p>Mobile Vibration</p>
+        </div>
+        <div class="feature">
+          <i class="fas fa-tachometer-alt"></i>
+          <p>Fast Processing</p>
+        </div>
+        <div class="feature">
+          <i class="fas fa-infinity"></i>
+          <p>Unlimited Pages</p>
+        </div>
+        <div class="feature">
+          <i class="fas fa-shield-alt"></i>
+          <p>Secure Processing</p>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Elements
-      const dropZone = document.getElementById('dropZone');
-      const pdfUpload = document.getElementById('pdfUpload');
-      const generateBtn = document.getElementById('generateBtn');
+      const uploadArea = document.getElementById('uploadArea');
+      const fileInput = document.getElementById('pdfUpload');
+      const processBtn = document.getElementById('processBtn');
+      const resetBtn = document.getElementById('resetBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+      const fileInfo = document.getElementById('fileInfo');
       const fileName = document.getElementById('fileName');
       const fileSize = document.getElementById('fileSize');
-      const filePages = document.getElementById('filePages');
-      const fileInfo = document.getElementById('fileInfo');
-      const statusArea = document.getElementById('statusArea');
+      const pageCount = document.getElementById('pageCount');
       const progressBar = document.getElementById('progressBar');
-      const statusMessage = document.getElementById('statusMessage');
-      const documentPreview = document.getElementById('documentPreview');
+      const progressText = document.getElementById('progressText');
+      const status = document.getElementById('status');
+      const downloadSection = document.getElementById('downloadSection');
       
-      // Fixed file upload handling
-      pdfUpload.addEventListener('change', handleFileUpload);
+      let pdfDoc = null;
+      let processedPdf = null;
       
-      // Drag and drop handling
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, preventDefaults, false);
+      // Upload area click handler
+      uploadArea.addEventListener('click', () => {
+        fileInput.click();
       });
       
-      function preventDefaults(e) {
+      // Drag and drop functionality
+      uploadArea.addEventListener('dragover', (e) => {
         e.preventDefault();
-        e.stopPropagation();
-      }
-      
-      ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, () => {
-          dropZone.style.borderColor = '#3498db';
-          dropZone.style.background = 'rgba(52, 152, 219, 0.1)';
-        }, false);
+        uploadArea.style.background = 'rgba(67, 97, 238, 0.15)';
+        uploadArea.style.borderColor = '#3a0ca3';
       });
       
-      ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, () => {
-          dropZone.style.borderColor = 'rgba(236, 240, 241, 0.3)';
-          dropZone.style.background = 'rgba(26, 37, 48, 0.4)';
-        }, false);
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.background = 'rgba(67, 97, 238, 0.05)';
+        uploadArea.style.borderColor = '#4361ee';
       });
       
-      dropZone.addEventListener('drop', handleDrop, false);
-      
-      function handleDrop(e) {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        if (files.length && files[0].type === 'application/pdf') {
-          pdfUpload.files = files;
-          handleFileUpload();
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.background = 'rgba(67, 97, 238, 0.05)';
+        uploadArea.style.borderColor = '#4361ee';
+        
+        if (e.dataTransfer.files.length) {
+          fileInput.files = e.dataTransfer.files;
+          handleFileSelection(e.dataTransfer.files[0]);
         }
-      }
+      });
       
-      function handleFileUpload() {
-        if (pdfUpload.files.length) {
-          const file = pdfUpload.files[0];
-          
-          // Display file info
-          const displayName = file.name.length > 30 ? file.name.substring(0, 27) + '...' : file.name;
-          fileName.textContent = displayName;
-          fileSize.textContent = formatFileSize(file.size);
-          fileInfo.classList.add('active');
-          
-          // Update preview
-          documentPreview.innerHTML = `
-            <i class="fas fa-file-pdf fa-2x" style="color:#e74c3c"></i>
-            <div style="margin-top:15px; font-weight:500;">${displayName}</div>
-            <div>${formatFileSize(file.size)}</div>
-          `;
-          
-          // Enable generate button
-          generateBtn.disabled = false;
-          
-          // Simulate page count detection
-          filePages.textContent = "Detecting...";
-          setTimeout(() => {
-            const pageCount = Math.floor(Math.random() * 10) + 1;
-            filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
-          }, 300);
+      // File input change handler
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length) {
+          handleFileSelection(e.target.files[0]);
         }
-      }
+      });
       
-      function formatFileSize(bytes) {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-      }
+      // Process button click handler
+      processBtn.addEventListener('click', addPageNumbers);
       
-      // Generate button click
-      generateBtn.addEventListener('click', generateWithLetterhead);
+      // Reset button click handler
+      resetBtn.addEventListener('click', resetApp);
       
-      // Main function to generate PDF with custom letterhead
-      async function generateWithLetterhead() {
-        if (!pdfUpload.files.length) {
-          showError("Please upload a PDF file first");
+      // Download button click handler
+      downloadBtn.addEventListener('click', downloadPDF);
+      
+      // Handle file selection
+      function handleFileSelection(file) {
+        if (file.type !== 'application/pdf') {
+          setStatus('Please select a PDF file', 'error');
           return;
         }
         
-        // Show processing UI
-        statusArea.classList.add('active');
-        statusMessage.textContent = "Starting PDF processing...";
-        progressBar.style.width = "10%";
+        // Show file info
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        pageCount.textContent = 'Detecting...';
+        fileInfo.classList.add('show');
+        
+        // Read the PDF to get page count
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const arrayBuffer = e.target.result;
+            pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+            const pages = pdfDoc.getPages();
+            pageCount.textContent = pages.length;
+            
+            // Enable process button
+            processBtn.disabled = false;
+            setStatus('PDF loaded successfully. Click "Add Page Numbers" to proceed');
+          } catch (error) {
+            setStatus('Error loading PDF: ' + error.message, 'error');
+            processBtn.disabled = true;
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+      
+      // Add page numbers to PDF
+      async function addPageNumbers() {
+        if (!pdfDoc) {
+          setStatus('Please upload a PDF first', 'error');
+          return;
+        }
+        
+        // Disable buttons during processing
+        processBtn.disabled = true;
+        resetBtn.disabled = true;
         
         try {
-          const file = pdfUpload.files[0];
+          setStatus('Processing PDF...');
           
-          // Optimized approach for mobile devices
-          statusMessage.textContent = "Loading document...";
-          progressBar.style.width = "20%";
+          const pages = pdfDoc.getPages();
+          const totalPages = pages.length;
+          const font = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
           
-          const uploadedPdfBytes = await file.arrayBuffer();
-          const uploadedPdf = await PDFLib.PDFDocument.load(uploadedPdfBytes);
-          const finalPdf = await PDFLib.PDFDocument.create();
-          
-          const pages = uploadedPdf.getPages();
-          const pageCount = pages.length;
-          
-          // Process each page with a delay to prevent UI blocking
-          for (let index = 0; index < pageCount; index++) {
-            // Update progress
-            const progress = 20 + (index / pageCount * 70);
-            progressBar.style.width = `${progress}%`;
-            statusMessage.textContent = `Processing page ${index + 1} of ${pageCount}...`;
+          for (let i = 0; i < totalPages; i++) {
+            const page = pages[i];
+            const { width, height } = page.getSize();
             
-            // Process page by page with a small delay
-            await processPage(finalPdf, uploadedPdf, index);
+            // Update progress
+            const progress = Math.floor(((i + 1) / totalPages) * 100);
+            updateProgress(progress);
+            
+            // Add page number
+            const fontSize = 12;
+            const text = `Page ${i + 1} of ${totalPages}`;
+            const textWidth = font.widthOfTextAtSize(text, fontSize);
+            
+            page.drawText(text, {
+              x: width - textWidth - 40,
+              y: 30,
+              size: fontSize,
+              font: font,
+              color: PDFLib.rgb(0.2, 0.2, 0.2)
+            });
+            
+            // Add decorative line
+            page.drawLine({
+              start: { x: width - textWidth - 50, y: 25 },
+              end: { x: width - 30, y: 25 },
+              thickness: 1,
+              color: PDFLib.rgb(0.4, 0.4, 0.8),
+              opacity: 0.7
+            });
+            
+            // Simulate processing time
+            await new Promise(resolve => setTimeout(resolve, 20));
           }
           
-          statusMessage.textContent = "Finalizing document...";
-          progressBar.style.width = "95%";
+          // Save the modified PDF
+          processedPdf = await pdfDoc.save();
           
-          const finalPdfBytes = await finalPdf.save();
-          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
-          saveAs(blob, "Myrtille_Industries_Document.pdf");
+          // Complete progress
+          updateProgress(100);
           
-          statusMessage.textContent = "Document generated successfully!";
-          progressBar.style.width = "100%";
-          progressBar.style.background = "var(--success)";
+          // Show success message
+          setStatus('PDF processed successfully!', 'success');
           
-          // Reset after a delay
-          setTimeout(() => {
-            statusArea.classList.remove('active');
-            progressBar.style.background = "linear-gradient(90deg, var(--accent), #2980b9)";
-            progressBar.style.width = "0%";
-          }, 3000);
+          // Show download section
+          downloadSection.classList.add('show');
           
+          // Trigger notification
+          showNotification();
+          
+          // Re-enable reset button
+          resetBtn.disabled = false;
         } catch (error) {
-          console.error('Error:', error);
-          showError(`Error processing PDF: ${error.message}`);
+          setStatus('Error processing PDF: ' + error.message, 'error');
+          processBtn.disabled = false;
+          resetBtn.disabled = false;
         }
       }
       
-      // Process each page separately to reduce memory footprint
-      async function processPage(finalPdf, uploadedPdf, index) {
-        return new Promise(resolve => {
-          setTimeout(async () => {
-            const page = uploadedPdf.getPages()[index];
-            const { width, height } = page.getSize();
-            
-            // Create a new page with the same dimensions
-            const newPage = finalPdf.addPage([width, height]);
-            
-            // Draw the original page content first
-            const [copiedPage] = await finalPdf.copyPages(uploadedPdf, [index]);
-            newPage.drawPage(copiedPage);
-            
-            // Add top white patti with company name
-            newPage.drawRectangle({
-              x: 0,
-              y: height - 70,
-              width: width,
-              height: 70,
-              color: PDFLib.rgb(1, 1, 1),
-              borderWidth: 0,
-            });
-            
-            // Add company name in black
-            const companyName = "MYRTILLE INDUSTRIES";
-            const companyNameWidth = 180; // Approximate width
-            newPage.drawText(companyName, {
-              x: width/2 - companyNameWidth/2,
-              y: height - 45,
-              size: 24,
-              color: PDFLib.rgb(0, 0, 0),
-              font: await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold),
-            });
-            
-            // Add bottom white patti
-            newPage.drawRectangle({
-              x: 0,
-              y: 0,
-              width: width,
-              height: 90,
-              color: PDFLib.rgb(1, 1, 1),
-              borderWidth: 0,
-            });
-            
-            // Add left side address in blue
-            const addressLines = [
-              "Building No./Flat No.: PLOT NO 25",
-              "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
-              "City/Town/Village: Jaipur",
-              "District: Jaipur",
-              "State: Rajasthan",
-              "PIN Code: 302019"
-            ];
-            
-            let yPos = 70;
-            addressLines.forEach(line => {
-              newPage.drawText(line, {
-                x: 40,
-                y: yPos,
-                size: 10,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica),
-              });
-              yPos -= 14;
-            });
-            
-            // Add right side contact details in blue
-            const contactLines = [
-              "+91 9782099489",
-              "myrtilleindia@gmail.com",
-              "GST- 08AMHPY5013C1Z4",
-              "URN- UDYAM-RJ-17-0084962"
-            ];
-            
-            yPos = 70;
-            contactLines.forEach(line => {
-              newPage.drawText(line, {
-                x: width - 180,
-                y: yPos,
-                size: 10,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica),
-              });
-              yPos -= 14;
-            });
-            
-            resolve();
-          }, 50); // Small delay to keep UI responsive
-        });
+      // Download the processed PDF
+      function downloadPDF() {
+        if (!processedPdf) return;
+        
+        const blob = new Blob([processedPdf], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'numbered-document.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
       }
       
-      function showError(message) {
-        statusArea.classList.add('active');
-        statusMessage.textContent = message;
-        progressBar.style.background = "var(--error)";
-        progressBar.style.width = "100%";
+      // Reset the application
+      function resetApp() {
+        fileInput.value = '';
+        pdfDoc = null;
+        processedPdf = null;
         
-        setTimeout(() => {
-          statusArea.classList.remove('active');
-          progressBar.style.background = "linear-gradient(90deg, var(--accent), #2980b9)";
-          progressBar.style.width = "0%";
-        }, 5000);
+        // Reset UI
+        fileInfo.classList.remove('show');
+        downloadSection.classList.remove('show');
+        processBtn.disabled = true;
+        updateProgress(0);
+        setStatus('Ready to process your PDF');
+      }
+      
+      // Update progress bar
+      function updateProgress(percent) {
+        progressBar.style.width = `${percent}%`;
+        progressText.textContent = `${percent}%`;
+      }
+      
+      // Set status message
+      function setStatus(message, type) {
+        status.textContent = message;
+        status.className = 'status';
+        if (type) status.classList.add(type);
+      }
+      
+      // Show notification (vibrate if possible)
+      function showNotification() {
+        // Try to vibrate
+        if (navigator.vibrate) {
+          navigator.vibrate([200, 100, 200]);
+        }
+        
+        // Show visual notification
+        status.classList.add('pulse');
+        setTimeout(() => status.classList.remove('pulse'), 2000);
+      }
+      
+      // Format file size
+      function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' bytes';
+        else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+        else return (bytes / 1048576).toFixed(1) + ' MB';
       }
     });
   </script>
