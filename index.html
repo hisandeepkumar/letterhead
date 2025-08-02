@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Myrtille Industries - PDF Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -100,29 +101,12 @@
     .preview-header i { margin-right: 10px; }
     .preview-header h3 { font-size: 18px; }
     .preview-content { padding: 15px; text-align: center; }
-    .letterhead-preview { 
+    .document-preview { 
+      width: 100%; 
+      height: 400px; 
+      overflow: auto; 
       background: white; 
-      padding: 20px; 
-      text-align: left; 
-      border: 1px solid #ddd; 
     }
-    .letterhead-top { 
-      background: white; 
-      padding: 10px; 
-      text-align: center; 
-      border-bottom: 1px solid #ddd; 
-    }
-    .company-name { font-size: 20px; font-weight: 600; color: #2c3e50; }
-    .letterhead-content { padding: 20px 0; color: #7f8c8d; }
-    .letterhead-bottom { 
-      display: flex; 
-      justify-content: space-between; 
-      border-top: 1px solid #ddd; 
-      padding-top: 10px; 
-    }
-    .address-section, .contact-section { font-size: 12px; color: #1a5d75; }
-    .section-title-line { font-weight: 600; margin-bottom: 5px; }
-    .document-placeholder { padding: 40px; color: #7f8c8d; }
     .status-area { 
       display: none; 
       margin-top: 20px; 
@@ -162,6 +146,7 @@
     @media (max-width: 768px) { 
       .app-content { padding: 20px; } 
       .preview-container { flex-direction: column; } 
+      .document-preview { height: 300px; } 
     }
   </style>
 </head>
@@ -198,55 +183,18 @@
         <div class="app-section">
           <div class="section-title">
             <i class="fas fa-eye"></i>
-            <h2>Letterhead Preview</h2>
+            <h2>Document Preview</h2>
           </div>
           
           <div class="preview-container">
-            <div class="preview-box">
-              <div class="preview-header">
-                <i class="fas fa-file-signature"></i>
-                <h3>Letterhead Design</h3>
-              </div>
-              <div class="preview-content">
-                <div class="letterhead-preview">
-                  <div class="letterhead-top">
-                    <div class="company-name">MYRTILLE INDUSTRIES</div>
-                  </div>
-                  <div class="letterhead-content">
-                    <p>This area will display your document content. The professional letterhead will be automatically added to every page of your PDF.</p>
-                  </div>
-                  <div class="letterhead-bottom">
-                    <div class="address-section">
-                      <div class="section-title-line">REGISTERED ADDRESS</div>
-                      <div>Building No./Flat No.: PLOT NO 25</div>
-                      <div>Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI</div>
-                      <div>City/Town/Village: Jaipur</div>
-                      <div>District: Jaipur</div>
-                      <div>State: Rajasthan</div>
-                      <div>PIN Code: 302019</div>
-                    </div>
-                    <div class="contact-section">
-                      <div class="section-title-line">CONTACT DETAILS</div>
-                      <div>+91 9782099489</div>
-                      <div>myrtilleindia@gmail.com</div>
-                      <div>GST- 08AMHPY5013C1Z4</div>
-                      <div>URN- UDYAM-RJ-17-0084962</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
             <div class="preview-box">
               <div class="preview-header">
                 <i class="fas fa-file-alt"></i>
                 <h3>Your Document</h3>
               </div>
               <div class="preview-content">
-                <div class="document-placeholder" id="documentPreview">
-                  <i class="fas fa-file-upload fa-2x"></i>
-                  REDACTED TEXT HERE
-                  <p style="margin-top: 15px;">Upload a PDF to preview</p>
+                <div class="document-preview" id="documentPreview">
+                  <canvas id="pdfCanvas"></canvas>
                 </div>
               </div>
             </div>
@@ -289,8 +237,8 @@
       const statusArea = document.getElementById('statusArea');
       const progressBar = document.getElementById('progressBar');
       const statusMessage = document.getElementById('statusMessage');
-      const documentPreview = document.getElementById('documentPreview');
       const browseButton = document.getElementById('browseButton');
+      const pdfCanvas = document.getElementById('pdfCanvas');
       
       pdfUpload.addEventListener('change', handleFileUpload);
       
@@ -333,7 +281,7 @@
         }
       }
       
-      function handleFileUpload() {
+      async function handleFileUpload() {
         if (pdfUpload.files.length) {
           const file = pdfUpload.files[0];
           
@@ -342,19 +290,33 @@
           fileSize.textContent = formatFileSize(file.size);
           fileInfo.classList.add('active');
           
-          documentPreview.innerHTML = `
-            <i class="fas fa-file-pdf fa-2x" style="color:#e74c3c"></i>
-            <div style="margin-top:15px; font-weight:500;">${displayName}</div>
-            <div>${formatFileSize(file.size)}</div>
-          `;
+          // Render PDF preview
+          const fileReader = new FileReader();
+          fileReader.onload = async function() {
+            const typedArray = new Uint8Array(this.result);
+            const pdf = await pdfjsLib.getDocument({data: typedArray}).promise;
+            const page = await pdf.getPage(1); // First page
+            const scale = 1.5;
+            const viewport = page.getViewport({scale: scale});
+            
+            const context = pdfCanvas.getContext('2d');
+            context.clearRect(0, 0, pdfCanvas.width, pdfCanvas.height);
+            pdfCanvas.height = viewport.height;
+            pdfCanvas.width = viewport.width;
+            
+            const renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            await page.render(renderContext).promise;
+            
+            // Set actual page count
+            const pageCount = pdf.numPages;
+            filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
+          };
+          fileReader.readAsArrayBuffer(file);
           
           generateBtn.disabled = false;
-          
-          filePages.textContent = "Detecting...";
-          setTimeout(() => {
-            const pageCount = Math.floor(Math.random() * 10) + 1;
-            filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
-          }, 300);
         }
       }
       
@@ -388,6 +350,10 @@
           const uploadedPdf = await PDFLib.PDFDocument.load(uploadedPdfBytes);
           const finalPdf = await PDFLib.PDFDocument.create();
           
+          // Embed fonts once
+          const helveticaBold = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
+          const helvetica = await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica);
+          
           const pages = uploadedPdf.getPages();
           const pageCount = pages.length;
           
@@ -396,7 +362,7 @@
             progressBar.style.width = `${progress}%`;
             statusMessage.textContent = `Processing page ${index + 1} of ${pageCount}...`;
             
-            await processPage(finalPdf, uploadedPdf, index);
+            await processPage(finalPdf, uploadedPdf, index, helveticaBold, helvetica);
           }
           
           statusMessage.textContent = "Finalizing document...";
@@ -422,87 +388,103 @@
         }
       }
       
-      async function processPage(finalPdf, uploadedPdf, index) {
-        return new Promise(resolve => {
-          setTimeout(async () => {
-            const page = uploadedPdf.getPages()[index];
-            const { width, height } = page.getSize();
-            
-            const newPage = finalPdf.addPage([width, height]);
-            
-            const [copiedPage] = await finalPdf.copyPages(uploadedPdf, [index]);
-            newPage.drawPage(copiedPage);
-            
-            newPage.drawRectangle({
-              x: 0,
-              y: height - 70,
-              width: width,
-              height: 70,
-              color: PDFLib.rgb(1, 1, 1),
-              borderWidth: 0,
-            });
-            
-            const companyName = "MYRTILLE INDUSTRIES";
-            const companyNameWidth = 180;
-            newPage.drawText(companyName, {
-              x: width/2 - companyNameWidth/2,
-              y: height - 45,
-              size: 24,
-              color: PDFLib.rgb(0, 0, 0),
-              font: await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold),
-            });
-            
-            newPage.drawRectangle({
-              x: 0,
-              y: 0,
-              width: width,
-              height: 90,
-              color: PDFLib.rgb(1, 1, 1),
-              borderWidth: 0,
-            });
-            
-            const addressLines = [
-              "Building No./Flat No.: PLOT NO 25",
-              "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
-              "City/Town/Village: Jaipur",
-              "District: Jaipur",
-              "State: Rajasthan",
-              "PIN Code: 302019"
-            ];
-            
-            let yPos = 70;
-            addressLines.forEach(line => {
-              newPage.drawText(line, {
-                x: 40,
-                y: yPos,
-                size: 10,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica),
-              });
-              yPos -= 14;
-            });
-            
-            const contactLines = [
-              "+91 9782099489",
-              "myrtilleindia@gmail.com",
-              "GST- 08AMHPY5013C1Z4",
-              "URN- UDYAM-RJ-17-0084962"
-            ];
-            
-            yPos = 70;
-            contactLines.forEach(line => {
-              newPage.drawText(line, {
-                x: width - 180,
-                y: yPos,
-                size: 10,
-                color: PDFLib.rgb(0.102, 0.322, 0.463),
-                font: await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica),
-              });
-              yPos -= 14;
-            });
-            
-            resolve();
-          }, 50);
+      async function processPage(finalPdf, uploadedPdf, index, helveticaBold, helvetica) {
+        const page = uploadedPdf.getPages()[index];
+        const { width, height } = page.getSize();
+        
+        const newPage = finalPdf.addPage([width, height]);
+        
+        const [copiedPage] = await finalPdf.copyPages(uploadedPdf, [index]);
+        newPage.drawPage(copiedPage);
+        
+        // Header (Company Name)
+        const companyName = "MYRTILLE INDUSTRIES";
+        const fontSize = 24;
+        const textWidth = helveticaBold.widthOfTextAtSize(companyName, fontSize);
+        const padding = 10;
+        
+        newPage.drawRectangle({
+          x: width/2 - textWidth/2 - padding,
+          y: height - 50,
+          width: textWidth + 2*padding,
+          height: 40,
+          color: PDFLib.rgb(1, 1, 1),
+        });
+        
+        newPage.drawText(companyName, {
+          x: width/2 - textWidth/2,
+          y: height - 40,
+          size: fontSize,
+          color: PDFLib.rgb(0, 0, 0),
+          font: helveticaBold,
+        });
+        
+        // Footer (Address aur Contact)
+        const addressLines = [
+          "Building No./Flat No.:-PLOT NO 25",
+          "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
+          "City/Town/Village: Jaipur",
+          "District: Jaipur",
+          "State: Rajasthan",
+          "PIN Code: 302019"
+        ];
+        const contactLines = [
+          "+91 9782099489",
+          "myrtilleindia@gmail.com",
+          "GST- 08AMHPY5013C1Z4",
+          "URN- UDYAM-RJ-17-0084962"
+        ];
+        const footerFontSize = 10;
+        const lineHeight = 14;
+        
+        // Address block
+        const addressWidths = addressLines.map(line => helvetica.widthOfTextAtSize(line, footerFontSize));
+        const maxAddressWidth = Math.max(...addressWidths);
+        const addressBlockHeight = addressLines.length * lineHeight;
+        
+        newPage.drawRectangle({
+          x: 40,
+          y: 10,
+          width: maxAddressWidth + 20,
+          height: addressBlockHeight + 10,
+          color: PDFLib.rgb(1, 1, 1),
+        });
+        
+        let yPos = 10 + addressBlockHeight + 5;
+        addressLines.forEach(line => {
+          newPage.drawText(line, {
+            x: 40 + 10,
+            y: yPos,
+            size: footerFontSize,
+            color: PDFLib.rgb(0.102, 0.322, 0.463),
+            font: helvetica,
+          });
+          yPos -= lineHeight;
+        });
+        
+        // Contact block
+        const contactWidths = contactLines.map(line => helvetica.widthOfTextAtSize(line, footerFontSize));
+        const maxContactWidth = Math.max(...contactWidths);
+        const contactBlockHeight = contactLines.length * lineHeight;
+        
+        newPage.drawRectangle({
+          x: width - maxContactWidth - 60,
+          y: 10,
+          width: maxContactWidth + 20,
+          height: contactBlockHeight + 10,
+          color: PDFLib.rgb(1, 1, 1),
+        });
+        
+        yPos = 10 + contactBlockHeight + 5;
+        contactLines.forEach(line => {
+          newPage.drawText(line, {
+            x: width - maxContactWidth - 50,
+            y: yPos,
+            size: footerFontSize,
+            color: PDFLib.rgb(0.102, 0.322, 0.463),
+            font: helvetica,
+          });
+          yPos -= lineHeight;
         });
       }
       
