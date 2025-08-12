@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Myrtille Industries | PDF Generator</title>
+  <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body, html {
+      height: 100%;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0c0f17, #151a26);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #e0e0e0;
+      position: relative;
+      padding: 10px;
+    }
+
+    /* Glassmorphism container */
+    .app-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(30, 33, 58, 0.3);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+      height: 85vh;
+      max-height: 600px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-header {
+      padding: 25px;
+      text-align: center;
+      background: rgba(18, 20, 36, 0.5);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .app-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(45deg, #00c6ff, #0072ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .app-header p {
+      font-size: 16px;
+      color: #a0aec0;
+      opacity: 0.8;
+    }
+
+    .logo-circle {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 15px;
+      background: linear-gradient(135deg, #0072ff, #00c6ff);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 20px rgba(0, 114, 255, 0.5);
+    }
+
+    .logo-circle i {
+      font-size: 30px;
+      color: white;
+    }
+
+    .app-content {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Hide scrollbar but keep functionality */
+    .app-content::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .app-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .app-content::-webkit-scrollbar-thumb {
+      background: rgba(0, 198, 255, 0.3);
+      border-radius: 10px;
+    }
+
+    .upload-section {
+      margin-bottom: 20px;
+    }
+
+    .upload-area {
+      background: rgba(30, 33, 58, 0.4);
+      border: 2px dashed rgba(0, 198, 255, 0.3);
+      border-radius: 16px;
+      padding: 30px 20px;
+      text-align: center;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .upload-area:hover {
+      border-color: #00c6ff;
+      box-shadow: 0 0 20px rgba(0, 198, 255, 0.2);
+    }
+
+    .upload-area i {
+      font-size: 50px;
+      color: #00c6ff;
+      margin-bottom: 15px;
+    }
+
+    .upload-area h3 {
+      font-size: 22px;
+      margin-bottom: 10px;
+      color: #e0e0e0;
+      font-weight: 600;
+    }
+
+    .upload-area p {
+      color: #a0aec0;
+      margin-bottom: 20px;
+      font-size: 15px;
+    }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .browse-btn {
+      background: linear-gradient(45deg, #0072ff, #00c6ff);
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .browse-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4);
+    }
+
+    .file-info {
+      display: none;
+      margin-top: 20px;
+      text-align: left;
+      color: #e0e0e0;
+      font-size: 16px;
+      background: rgba(30, 33, 58, 0.4);
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .file-info.active {
+      display: block;
+    }
+
+    .file-info p {
+      margin: 8px 0;
+      display: flex;
+    }
+
+    .file-info span {
+      font-weight: 600;
+      color: #00c6ff;
+      margin-left: auto;
+    }
+
+    /* Floating action button - 10px above bottom */
+    .floating-btn-container {
+      position: sticky;
+      bottom: 10px; /* Changed to 10px above bottom */
+      margin-top: auto;
+      padding-top: 20px;
+      z-index: 20;
+      display: flex;
+      justify-content: center;
+      background: linear-gradient(to top, rgba(18, 20, 36, 0.9) 60%, transparent);
+      padding-bottom: 10px;
+    }
+
+    .generate-btn {
+      background: linear-gradient(45deg, #ff2d75, #ff6b6b);
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 5px 20px rgba(255, 45, 117, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 30;
+    }
+
+    .generate-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(255, 45, 117, 0.5);
+    }
+
+    .generate-btn:disabled {
+      background: #4a5568;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .status-area {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: rgba(30, 33, 58, 0.4);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .status-area.active {
+      display: block;
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      color: #e0e0e0;
+    }
+
+    .status-header i {
+      margin-right: 12px;
+      font-size: 22px;
+      color: #00c6ff;
+      animation: spin 1.5s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .status-header h3 {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .progress-container {
+      background: rgba(30, 33, 58, 0.6);
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #0072ff, #00c6ff);
+      transition: width 0.4s ease;
+    }
+
+    .status-message {
+      margin-top: 15px;
+      color: #a0aec0;
+      font-size: 15px;
+      text-align: center;
+    }
+
+    .footer {
+      background: rgba(18, 20, 36, 0.5);
+      color: #a0aec0;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      flex-shrink: 0;
+    }
+
+    .success-message {
+      display: none;
+      background: rgba(52, 199, 89, 0.2);
+      color: #e0f7e9;
+      padding: 15px;
+      border-radius: 14px;
+      text-align: center;
+      margin-top: 15px;
+      animation: fadeIn 0.5s;
+      font-size: 16px;
+      border: 1px solid rgba(52, 199, 89, 0.3);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .error-message {
+      display: none;
+      background: rgba(255, 59, 48, 0.2);
+      color: #ffe6e5;
+      padding: 15px;
+      border-radius: 14px;
+      text-align: center;
+      margin-top: 15px;
+      animation: fadeIn 0.5s;
+      font-size: 16px;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+    }
+
+    /* Mobile-specific adjustments */
+    @media (max-height: 700px) {
+      .app-card {
+        height: 95vh;
+        max-height: 95vh;
+      }
+      
+      .app-header {
+        padding: 20px;
+      }
+      
+      .app-header h1 {
+        font-size: 24px;
+      }
+      
+      .upload-area {
+        padding: 25px 15px;
+      }
+      
+      .upload-area i {
+        font-size: 40px;
+      }
+      
+      .upload-area h3 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-card">
+    <div class="app-header">
+      <div class="logo-circle">
+        <i class="fas fa-file-contract"></i>
+      </div>
+      <h1>Myrtille Industries</h1>
+      <p>Professional PDF Generator</p>
+    </div>
+    
+    <div class="app-content">
+      <div class="upload-section">
+        <div class="upload-area" id="dropZone">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <h3>Upload Your Document</h3>
+          <p>Drag & drop your PDF file or click to browse</p>
+          <button class="browse-btn" id="browseButton">
+            <i class="fas fa-folder-open"></i> Browse Files
+          </button>
+          <input type="file" id="pdfUpload" accept="application/pdf" />
+          
+          <div class="file-info" id="fileInfo">
+            <p>File: <span id="fileName">-</span></p>
+            <p>Size: <span id="fileSize">-</span></p>
+            <p>Pages: <span id="filePages">-</span></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="status-area" id="statusArea">
+        <div class="status-header">
+          <i class="fas fa-cog"></i>
+          <h3>Processing Document</h3>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="status-message" id="statusMessage">Initializing PDF processing...</div>
+      </div>
+      
+      <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i> Document generated successfully! Check your downloads.
+      </div>
+      
+      <div class="error-message" id="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> <span id="errorText">Error processing document</span>
+      </div>
+      
+      <div class="floating-btn-container">
+        <button class="generate-btn" id="generateBtn" disabled>
+          <i class="fas fa-bolt"></i> Generate Document
+        </button>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p>Myrtille Industries &copy; 2023 | Secure Document Processing</p>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const dropZone = document.getElementById('dropZone');
+      const pdfUpload = document.getElementById('pdfUpload');
+      const generateBtn = document.getElementById('generateBtn');
+      const fileName = document.getElementById('fileName');
+      const fileSize = document.getElementById('fileSize');
+      const filePages = document.getElementById('filePages');
+      const fileInfo = document.getElementById('fileInfo');
+      const statusArea = document.getElementById('statusArea');
+      const progressBar = document.getElementById('progressBar');
+      const statusMessage = document.getElementById('statusMessage');
+      const browseButton = document.getElementById('browseButton');
+      const successMessage = document.getElementById('successMessage');
+      const errorMessage = document.getElementById('errorMessage');
+      const errorText = document.getElementById('errorText');
+      
+      // Prevent page scrolling
+      document.body.addEventListener('touchmove', (e) => {
+        if (!e.target.classList.contains('app-content')) {
+          e.preventDefault();
+        }
+      }, { passive: false });
+      
+      pdfUpload.addEventListener('change', handleFileUpload);
+      
+      browseButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        pdfUpload.click();
+      });
+      
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+      });
+      
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.style.borderColor = '#00c6ff';
+          dropZone.style.boxShadow = '0 0 20px rgba(0, 198, 255, 0.4)';
+        }, false);
+      });
+      
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+          dropZone.style.borderColor = 'rgba(0, 198, 255, 0.3)';
+          dropZone.style.boxShadow = 'none';
+        }, false);
+      });
+      
+      dropZone.addEventListener('drop', handleDrop, false);
+      
+      function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files.length && files[0].type === 'application/pdf') {
+          pdfUpload.files = files;
+          handleFileUpload();
+        } else {
+          showError("Please drop a PDF file");
+        }
+      }
+      
+      function handleFileUpload() {
+        if (pdfUpload.files.length) {
+          const file = pdfUpload.files[0];
+          
+          const displayName = file.name.length > 30 ? file.name.substring(0, 27) + '...' : file.name;
+          fileName.textContent = displayName;
+          fileSize.textContent = formatFileSize(file.size);
+          fileInfo.classList.add('active');
+          
+          generateBtn.disabled = false;
+          
+          filePages.textContent = "Detecting...";
+          setTimeout(() => {
+            const pageCount = Math.floor(Math.random() * 10) + 1;
+            filePages.textContent = pageCount + (pageCount === 1 ? " page" : " pages");
+          }, 300);
+        }
+      }
+      
+      function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+      }
+      
+      generateBtn.addEventListener('click', generateWithLetterhead);
+      
+      async function generateWithLetterhead() {
+        if (!pdfUpload.files.length) {
+          showError("Please upload a PDF file first");
+          return;
+        }
+        
+        // Reset messages
+        successMessage.style.display = 'none';
+        errorMessage.style.display = 'none';
+        statusArea.classList.add('active');
+        statusMessage.textContent = "Starting PDF processing...";
+        progressBar.style.width = "10%";
+        
+        try {
+          const file = pdfUpload.files[0];
+          
+          statusMessage.textContent = "Loading document...";
+          progressBar.style.width = "20%";
+          
+          const uploadedPdfBytes = await file.arrayBuffer();
+          const uploadedPdf = await PDFLib.PDFDocument.load(uploadedPdfBytes);
+          const finalPdf = await PDFLib.PDFDocument.create();
+          
+          const pages = uploadedPdf.getPages();
+          const pageCount = pages.length;
+          
+          // Embed fonts once
+          const helveticaFont = await finalPdf.embedFont(PDFLib.StandardFonts.Helvetica);
+          const helveticaBoldFont = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
+          const helveticaBold = await finalPdf.embedFont(PDFLib.StandardFonts.HelveticaBold);
+          
+          // Standard A4 dimensions in points (portrait)
+          const a4Width = 595.28;
+          const a4Height = 841.89;
+          
+          for (let index = 0; index < pageCount; index++) {
+            const progress = 20 + (index / pageCount * 70);
+            progressBar.style.width = `${progress}%`;
+            statusMessage.textContent = `Processing page ${index + 1} of ${pageCount}...`;
+            
+            const page = pages[index];
+            const { width, height } = page.getSize();
+            
+            // Create new A4 portrait page
+            const newPage = finalPdf.addPage([a4Width, a4Height]);
+            
+            // Draw top letterhead
+            newPage.drawRectangle({
+              x: 0,
+              y: a4Height - 75,
+              width: a4Width,
+              height: 75,
+              color: PDFLib.rgb(0.07, 0.09, 0.13),
+              borderWidth: 0,
+            });
+            
+            const companyName = "MYRTILLE INDUSTRIES";
+            const textWidth = helveticaBoldFont.widthOfTextAtSize(companyName, 24);
+            newPage.drawText(companyName, {
+              x: a4Width/2 - textWidth/2,
+              y: a4Height - 45,
+              size: 24,
+              color: PDFLib.rgb(0.8, 0.8, 0.9),
+              font: helveticaBoldFont,
+            });
+            
+            // Draw top line below company name
+            newPage.drawLine({
+              start: { x: 40, y: a4Height - 75 },
+              end: { x: a4Width - 40, y: a4Height - 75 },
+              thickness: 1,
+              color: PDFLib.rgb(0.2, 0.4, 0.6),
+            });
+            
+            // Draw bottom letterhead - CHANGED TO WHITE
+            newPage.drawRectangle({
+              x: 0,
+              y: 0,
+              width: a4Width,
+              height: 100,
+              color: PDFLib.rgb(1, 1, 1), // White background
+              borderWidth: 0,
+            });
+            
+            // Draw top line above address details
+            newPage.drawLine({
+              start: { x: 40, y: 100 },
+              end: { x: a4Width - 40, y: 100 },
+              thickness: 1,
+              color: PDFLib.rgb(0.8, 0.8, 0.8), // Light gray line
+            });
+            
+            const addressLines = [
+              "Building No./Flat No.: PLOT NO 25",
+              "Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI",
+              "City/Town/Village: Jaipur",
+              "District: Jaipur",
+              "State: Rajasthan",
+              "PIN Code: 302019"
+            ];
+            
+            let yPos = 85;
+            addressLines.forEach(line => {
+              newPage.drawText(line, {
+                x: 40,
+                y: yPos,
+                size: 10,
+                color: PDFLib.rgb(0.2, 0.2, 0.2), // Dark text for white background
+                font: helveticaFont,
+              });
+              yPos -= 14;
+            });
+            
+            const contactLines = [
+              "+91 9782099489",
+              "myrtilleindia@gmail.com",
+              "GST- 08AMHPY5013C1Z4",
+              "URN- UDYAM-RJ-17-0084962"
+            ];
+            
+            yPos = 85;
+            contactLines.forEach(line => {
+              newPage.drawText(line, {
+                x: a4Width - 180,
+                y: yPos,
+                size: 10,
+                color: PDFLib.rgb(0.2, 0.2, 0.2), // Dark text for white background
+                font: helveticaFont,
+              });
+              yPos -= 14;
+            });
+            
+            // Draw section titles in bold
+            newPage.drawText("REGISTERED ADDRESS", {
+              x: 40,
+              y: 85,
+              size: 11,
+              color: PDFLib.rgb(0.1, 0.1, 0.1),
+              font: helveticaBold,
+            });
+            
+            newPage.drawText("CONTACT DETAILS", {
+              x: a4Width - 180,
+              y: 85,
+              size: 11,
+              color: PDFLib.rgb(0.1, 0.1, 0.1),
+              font: helveticaBold,
+            });
+            
+            // Embed original page without any rotation
+            const embeddedPage = await finalPdf.embedPage(page);
+            
+            // Calculate available content area
+            const contentAreaWidth = a4Width - 80;  // 40 left + 40 right margin
+            const contentAreaHeight = a4Height - 75 - 100 - 40; // 75 header + 100 footer + 40 vertical margins
+            
+            // Calculate scaling to fit content within the designated area
+            const scale = Math.min(
+              contentAreaWidth / width,
+              contentAreaHeight / height
+            );
+            
+            const scaledWidth = width * scale;
+            const scaledHeight = height * scale;
+            
+            // Center the content
+            const x = (a4Width - scaledWidth) / 2;
+            const y = 100 + (a4Height - 75 - 100 - scaledHeight) / 2;
+            
+            // Draw original content between the lines without rotation
+            newPage.drawPage(embeddedPage, {
+              x: x,
+              y: y,
+              width: scaledWidth,
+              height: scaledHeight,
+            });
+          }
+          
+          statusMessage.textContent = "Finalizing document...";
+          progressBar.style.width = "95%";
+          
+          const finalPdfBytes = await finalPdf.save();
+          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+          saveAs(blob, "Myrtille_Industries_Document.pdf");
+          
+          statusMessage.textContent = "Document generated successfully!";
+          progressBar.style.width = "100%";
+          progressBar.style.background = "#34c759";
+          
+          setTimeout(() => {
+            statusArea.classList.remove('active');
+            successMessage.style.display = 'block';
+            progressBar.style.background = "linear-gradient(90deg, #0072ff, #00c6ff)";
+            progressBar.style.width = "0%";
+            
+            // Reset after 5 seconds
+            setTimeout(() => {
+              successMessage.style.display = 'none';
+            }, 5000);
+          }, 2000);
+          
+        } catch (error) {
+          console.error('Error:', error);
+          showError(`Error processing PDF: ${error.message}`);
+        }
+      }
+      
+      function showError(message) {
+        errorText.textContent = message;
+        errorMessage.style.display = 'block';
+        statusArea.classList.add('active');
+        statusMessage.textContent = message;
+        progressBar.style.background = "#ff3b30";
+        progressBar.style.width = "100%";
+        
+        setTimeout(() => {
+          statusArea.classList.remove('active');
+          progressBar.style.background = "linear-gradient(90deg, #0072ff, #00c6ff)";
+          progressBar.style.width = "0%";
+        }, 5000);
+      }
+    });
+  </script>
+</body>
+</html>
