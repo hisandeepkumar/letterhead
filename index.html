@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Myrtille Industries - Glassmorphism PDF Generator</title>
+  <title>Myrtille Industries - PDF Generator</title>
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +11,10 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), 
+                url('https://images.unsplash.com/photo-1558591710-4b4a1ae0f04d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center;
       font-family: 'Poppins', sans-serif; 
       min-height: 100vh; 
       display: flex; 
@@ -22,31 +25,7 @@
       position: relative;
     }
     
-    /* Glassmorphism background elements */
-    body::before, body::after {
-      content: "";
-      position: absolute;
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      z-index: -1;
-      filter: blur(100px);
-      opacity: 0.4;
-    }
-    
-    body::before {
-      background: linear-gradient(135deg, #3498db, #8e44ad);
-      top: 10%;
-      left: 10%;
-    }
-    
-    body::after {
-      background: linear-gradient(135deg, #e74c3c, #f39c12);
-      bottom: 10%;
-      right: 10%;
-    }
-    
-    .container { max-width: 1200px; width: 100%; z-index: 10; }
+    .container { max-width: 600px; width: 100%; z-index: 10; }
     
     /* Glassmorphism card */
     .app-card { 
@@ -82,7 +61,7 @@
     .app-header { 
       background: linear-gradient(90deg, rgba(44, 62, 80, 0.7), rgba(52, 152, 219, 0.7)); 
       color: white; 
-      padding: 25px; 
+      padding: 20px; 
       text-align: center; 
       position: relative;
       overflow: hidden;
@@ -101,26 +80,19 @@
     }
     
     .app-header h1 { 
-      font-size: 32px; 
+      font-size: 24px; 
       font-weight: 700; 
       position: relative; 
       text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
     }
     
-    .app-header p { 
-      font-size: 18px; 
-      opacity: 0.9; 
-      position: relative; 
-      margin-top: 10px; 
-    }
-    
-    .app-content { padding: 35px; }
-    .app-section { margin-bottom: 35px; }
+    .app-content { padding: 30px; }
+    .app-section { margin-bottom: 30px; }
     
     .section-title { 
       display: flex; 
       align-items: center; 
-      margin-bottom: 20px; 
+      margin-bottom: 15px; 
       color: white; 
       position: relative;
       padding-left: 15px;
@@ -145,13 +117,13 @@
       text-shadow: 0 0 10px rgba(52, 152, 219, 0.7);
     }
     
-    .section-title h2 { font-size: 24px; font-weight: 600; }
+    .section-title h2 { font-size: 20px; font-weight: 600; }
     
     .upload-area { 
       background: rgba(26, 37, 48, 0.2); 
       border: 2px dashed rgba(52, 152, 219, 0.4); 
       border-radius: 12px; 
-      padding: 45px; 
+      padding: 35px 20px; 
       text-align: center; 
       position: relative; 
       transition: all 0.3s ease; 
@@ -171,16 +143,16 @@
     }
     
     .upload-area h3 { 
-      font-size: 26px; 
-      margin: 20px 0; 
+      font-size: 22px; 
+      margin: 15px 0; 
       color: white; 
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
     }
     
     .upload-area p { 
       color: #bdc3c7; 
-      margin-bottom: 25px; 
-      font-size: 18px; 
+      margin-bottom: 20px; 
+      font-size: 16px; 
     }
     
     .upload-area input[type="file"] { 
@@ -209,6 +181,9 @@
       font-weight: 500;
       box-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.2);
+      display: block;
+      width: 100%;
+      margin: 20px 0;
     }
     
     .btn::before {
@@ -242,10 +217,10 @@
     
     .file-info { 
       display: none; 
-      margin-top: 25px; 
+      margin-top: 20px; 
       text-align: left; 
       color: white; 
-      font-size: 18px; 
+      font-size: 16px; 
       background: rgba(26, 37, 48, 0.3);
       padding: 15px;
       border-radius: 10px;
@@ -256,169 +231,10 @@
     .file-info p { margin: 8px 0; }
     .file-info span { font-weight: 600; color: #3498db; }
     
-    .preview-container { display: flex; gap: 25px; flex-wrap: wrap; }
-    
-    .preview-box { 
-      flex: 1; 
-      min-width: 320px; 
-      background: rgba(26, 37, 48, 0.2); 
-      border-radius: 12px; 
-      overflow: hidden; 
-      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-      transition: transform 0.3s;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(5px);
-    }
-    
-    .preview-box:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    }
-    
-    .preview-header { 
-      background: linear-gradient(90deg, rgba(52, 152, 219, 0.7), rgba(41, 128, 185, 0.7)); 
-      color: white; 
-      padding: 15px; 
-      display: flex; 
-      align-items: center; 
-      backdrop-filter: blur(5px);
-    }
-    
-    .preview-header i { 
-      margin-right: 15px; 
-      font-size: 20px; 
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    }
-    
-    .preview-header h3 { font-size: 20px; font-weight: 600; }
-    
-    .preview-content { 
-      padding: 20px; 
-      text-align: center; 
-      min-height: 400px; 
-    }
-    
-    .letterhead-preview { 
-      background: rgba(255, 255, 255, 0.1); 
-      padding: 25px; 
-      text-align: left; 
-      border: 1px solid rgba(255, 255, 255, 0.1); 
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-      position: relative;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      backdrop-filter: blur(5px);
-    }
-    
-    .letterhead-top { 
-      background: rgba(255, 255, 255, 0.1); 
-      padding: 15px 10px 10px; 
-      text-align: center; 
-      position: relative;
-    }
-    
-    .company-name { 
-      font-size: 24px; 
-      font-weight: 700; 
-      color: white; 
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 15px;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-    }
-    
-    .line-separator {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #3498db, transparent);
-      width: 90%;
-      margin: 0 auto 20px;
-      box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
-    }
-    
-    .letterhead-content { 
-      flex: 1;
-      padding: 25px 0; 
-      color: #ddd; 
-      line-height: 1.7;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(255, 255, 255, 0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      font-size: 18px;
-    }
-    
-    .letterhead-bottom { 
-      display: flex; 
-      justify-content: space-between; 
-      padding-top: 25px; 
-      margin-top: 20px;
-      font-size: 15px;
-      position: relative;
-    }
-    
-    .letterhead-bottom::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #3498db, transparent);
-      box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
-    }
-    
-    .address-section, .contact-section { 
-      font-size: 15px; 
-      color: #9ec5e6; 
-    }
-    
-    .section-title-line { 
-      font-weight: 700; 
-      margin-bottom: 8px; 
-      color: #3498db;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      padding-bottom: 5px;
-      font-size: 16px;
-      text-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
-    }
-    
-    .document-placeholder { 
-      padding: 40px; 
-      color: #bdc3c7; 
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 400px;
-      height: 100%;
-      background: rgba(26, 37, 48, 0.2);
-      border-radius: 8px;
-      border: 1px dashed rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(5px);
-    }
-    
-    .document-placeholder i {
-      font-size: 60px;
-      color: #e74c3c;
-      margin-bottom: 20px;
-      opacity: 0.8;
-      text-shadow: 0 0 15px rgba(231, 76, 60, 0.4);
-    }
-    
-    .document-placeholder p {
-      font-size: 18px;
-      margin-top: 15px;
-    }
-    
     .status-area { 
       display: none; 
-      margin-top: 25px; 
-      padding: 25px; 
+      margin-top: 20px; 
+      padding: 20px; 
       background: rgba(26, 37, 48, 0.3); 
       border-radius: 12px; 
       backdrop-filter: blur(5px);
@@ -441,7 +257,7 @@
       text-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
     }
     
-    .status-header h3 { font-size: 22px; font-weight: 600; }
+    .status-header h3 { font-size: 20px; font-weight: 600; }
     
     .progress-container { 
       background: rgba(213, 219, 221, 0.2); 
@@ -464,58 +280,19 @@
     .status-message { 
       margin-top: 15px; 
       color: white; 
-      font-size: 18px; 
-    }
-    
-    .footer { 
-      background: rgba(44, 62, 80, 0.7); 
-      color: white; 
-      text-align: center; 
-      padding: 20px; 
       font-size: 16px; 
-      position: relative;
-      backdrop-filter: blur(5px);
-    }
-    
-    .footer::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: linear-gradient(90deg, #3498db, #2980b9);
-      box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
-    }
-    
-    .preview-image {
-      max-width: 90%;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-      margin-top: 25px;
-      border-radius: 5px;
-      background: rgba(0, 0, 0, 0.3);
-    }
-    
-    @media (max-width: 768px) { 
-      .app-content { padding: 25px; } 
-      .preview-container { flex-direction: column; }
-      .upload-area { padding: 30px; }
-      .letterhead-bottom { flex-direction: column; gap: 20px; }
-      .section-title h2 { font-size: 22px; }
-      .btn { width: 100%; padding: 18px; }
     }
     
     .success-message {
       display: none;
       background: rgba(39, 174, 96, 0.7);
       color: white;
-      padding: 20px;
+      padding: 15px;
       border-radius: 10px;
       text-align: center;
-      margin-top: 25px;
+      margin-top: 20px;
       animation: fadeIn 0.5s;
-      font-size: 18px;
+      font-size: 16px;
       backdrop-filter: blur(5px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: 0 0 20px rgba(39, 174, 96, 0.3);
@@ -526,85 +303,19 @@
       to { opacity: 1; transform: translateY(0); }
     }
     
-    .instructions {
-      background: rgba(227, 242, 253, 0.2);
-      border-left: 4px solid #3498db;
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 0 8px 8px 0;
-      font-size: 16px;
-      color: white;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 0 10px rgba(52, 152, 219, 0.2);
-    }
-    
-    .feature-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin: 20px 0;
-    }
-    
-    .feature {
-      flex: 1;
-      min-width: 200px;
-      background: rgba(26, 37, 48, 0.3);
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: center;
-      backdrop-filter: blur(5px);
-      transition: all 0.3s;
-    }
-    
-    .feature:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-    }
-    
-    .feature i {
-      font-size: 28px;
-      color: #3498db;
-      margin-bottom: 10px;
-      text-shadow: 0 0 15px rgba(52, 152, 219, 0.5);
-    }
-    
-    .feature h3 {
-      color: white;
-      font-size: 18px;
-      margin-bottom: 5px;
-    }
-    
-    .feature p {
-      color: #bdc3c7;
-      font-size: 15px;
-    }
-    
     .error-message {
       display: none;
       background: rgba(231, 76, 60, 0.7);
       color: white;
-      padding: 20px;
+      padding: 15px;
       border-radius: 10px;
       text-align: center;
-      margin-top: 25px;
+      margin-top: 20px;
       animation: fadeIn 0.5s;
-      font-size: 18px;
+      font-size: 16px;
       backdrop-filter: blur(5px);
       border: 1px solid rgba(255, 255, 255, 0.2);
       box-shadow: 0 0 20px rgba(231, 76, 60, 0.3);
-    }
-    
-    .rotation-info {
-      background: rgba(255, 248, 225, 0.2);
-      border-left: 4px solid #ffc107;
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 0 8px 8px 0;
-      font-size: 16px;
-      color: white;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 0 10px rgba(255, 193, 7, 0.2);
     }
     
     /* Floating particles effect */
@@ -632,6 +343,14 @@
       90% { opacity: 1; }
       100% { transform: translateY(-100vh) translateX(100px) rotate(360deg); opacity: 0; }
     }
+    
+    @media (max-width: 768px) { 
+      .app-content { padding: 20px; } 
+      .upload-area { padding: 25px 15px; }
+      .btn { padding: 14px; font-size: 16px; }
+      .app-header h1 { font-size: 20px; }
+      .upload-area h3 { font-size: 20px; }
+    }
   </style>
 </head>
 <body>
@@ -641,41 +360,14 @@
   <div class="container">
     <div class="app-card">
       <div class="app-header">
-        <h1><i class="fas fa-file-contract"></i> Myrtille Industries</h1>
-        <p>Professional PDF Generator with Custom Letterhead</p>
+        <h1><i class="fas fa-file-pdf"></i> Myrtille Industries PDF Generator</h1>
       </div>
       
       <div class="app-content">
-        <div class="feature-list">
-          <div class="feature">
-            <i class="fas fa-file-pdf"></i>
-            <h3>Portrait Format</h3>
-            <p>All pages in A4 portrait</p>
-          </div>
-          <div class="feature">
-            <i class="fas fa-file-signature"></i>
-            <h3>Professional Letterhead</h3>
-            <p>Header and footer with details</p>
-          </div>
-          <div class="feature">
-            <i class="fas fa-expand-arrows-alt"></i>
-            <h3>No Rotation</h3>
-            <p>Original orientation preserved</p>
-          </div>
-        </div>
-        
         <div class="app-section">
           <div class="section-title">
             <i class="fas fa-cloud-upload-alt"></i>
             <h2>Upload Your Document</h2>
-          </div>
-          
-          <div class="instructions">
-            <p><i class="fas fa-info-circle"></i> Upload any PDF document. All pages will be in A4 portrait format with professional letterhead.</p>
-          </div>
-          
-          <div class="rotation-info">
-            <p><i class="fas fa-exclamation-triangle"></i> Important: Page rotation is disabled. Original page orientation will be preserved and scaled to fit.</p>
           </div>
           
           <div class="upload-area" id="dropZone">
@@ -693,67 +385,8 @@
           </div>
         </div>
         
-        <div class="app-section">
-          <div class="section-title">
-            <i class="fas fa-eye"></i>
-            <h2>Letterhead Preview</h2>
-          </div>
-          
-          <div class="preview-container">
-            <div class="preview-box">
-              <div class="preview-header">
-                <i class="fas fa-file-signature"></i>
-                <h3>Letterhead Design</h3>
-              </div>
-              <div class="preview-content">
-                <div class="letterhead-preview">
-                  <div class="letterhead-top">
-                    <div class="company-name">MYRTILLE INDUSTRIES</div>
-                    <div class="line-separator"></div>
-                  </div>
-                  <div class="letterhead-content">
-                    <p>Your document content will appear here between the header and footer lines.</p>
-                    <p>All pages in A4 portrait format without rotation.</p>
-                  </div>
-                  <div class="letterhead-bottom">
-                    <div class="address-section">
-                      <div class="section-title-line">REGISTERED ADDRESS</div>
-                      <div>Building No./Flat No.: PLOT NO 25</div>
-                      <div>Road/Street: DEEPNAGAR, NEAR GUJAR KI THADI</div>
-                      <div>City/Town/Village: Jaipur</div>
-                      <div>District: Jaipur</div>
-                      <div>State: Rajasthan</div>
-                      <div>PIN Code: 302019</div>
-                    </div>
-                    <div class="contact-section">
-                      <div class="section-title-line">CONTACT DETAILS</div>
-                      <div>+91 9782099489</div>
-                      <div>myrtilleindia@gmail.com</div>
-                      <div>GST- 08AMHPY5013C1Z4</div>
-                      <div>URN- UDYAM-RJ-17-0084962</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div class="preview-box">
-              <div class="preview-header">
-                <i class="fas fa-file-alt"></i>
-                <h3>Your Document Preview</h3>
-              </div>
-              <div class="preview-content">
-                <div class="document-placeholder" id="documentPreview">
-                  <i class="fas fa-file-upload"></i>
-                  <p>Upload a PDF to preview</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
         <div class="app-section" style="text-align: center;">
-          <button class="btn" id="generateBtn" disabled style="padding: 16px 40px; font-size: 20px;">
+          <button class="btn" id="generateBtn" disabled>
             <i class="fas fa-magic"></i> Generate Document with Letterhead
           </button>
           
@@ -777,10 +410,6 @@
           </div>
         </div>
       </div>
-      
-      <div class="footer">
-        <p>Myrtille Industries &copy; 2023 | Professional Document Solutions</p>
-      </div>
     </div>
   </div>
 
@@ -788,14 +417,14 @@
     document.addEventListener('DOMContentLoaded', () => {
       // Create floating particles
       const particlesContainer = document.getElementById('particles');
-      const particleCount = 30;
+      const particleCount = 20;
       
       for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.classList.add('particle');
         
         // Random size
-        const size = Math.random() * 60 + 20;
+        const size = Math.random() * 40 + 15;
         particle.style.width = `${size}px`;
         particle.style.height = `${size}px`;
         
@@ -819,7 +448,6 @@
       const statusArea = document.getElementById('statusArea');
       const progressBar = document.getElementById('progressBar');
       const statusMessage = document.getElementById('statusMessage');
-      const documentPreview = document.getElementById('documentPreview');
       const browseButton = document.getElementById('browseButton');
       const successMessage = document.getElementById('successMessage');
       const errorMessage = document.getElementById('errorMessage');
@@ -876,14 +504,6 @@
           fileName.textContent = displayName;
           fileSize.textContent = formatFileSize(file.size);
           fileInfo.classList.add('active');
-          
-          documentPreview.innerHTML = `
-            <i class="fas fa-file-pdf" style="color:#e74c3c"></i>
-            <div style="margin-top:20px; font-weight:600;">${displayName}</div>
-            <div>${formatFileSize(file.size)}</div>
-            <img src="https://i.imgur.com/2wDlQf1.png" alt="PDF Preview" class="preview-image">
-            <p>Preview of uploaded document</p>
-          `;
           
           generateBtn.disabled = false;
           
